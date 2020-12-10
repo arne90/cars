@@ -5,39 +5,51 @@ class SceneMain extends Phaser.Scene {
 
   preload() {
     // Load our images or sounds
-    this.load.image("road", "images/road.jpg");
-    this.load.spritesheet("cars", "images/cars.png", {frameWidth:60, frameHeight:126});
-    this.load.image("line", "images/line.png");
-    this.load.image("pcar1", "images/pcar1.png");
-    this.load.image("pcar2", "images/pcar2.png");
-    this.load.image("cone", "images/cone.png");
-    this.load.image("barrier", "images/barrier.png");
+    this.load.image("face", "images/face.png");
+    this.load.image("button1", "images/ui/buttons/1/1.png");
+    this.load.image("button2", "images/ui/buttons/2/5.png");
   }
 
   create() {
     // Define our objects
-    emitter = new Phaser.Events.EventEmitter();
-    controller = new Controller();
+
+    //
+    // GRID:
+    let gridConfig = {rows: 5, cols: 5, scene: this};
+    let alignGrid = new AlignGrid(gridConfig);
+    alignGrid.show();
     //
     //
-    this.sb = new ScoreBox({scene:this});
-    this.sb.x = game.config.width-50;
+    this.sb = new ScoreBox({scene: this});
+    this.sb.x = game.config.width / 2;
     this.sb.y = 50;
+    model.score = 100;
 
-    model.score = 0;
+    this.face = this.add.sprite(0, 0, "face");
+    alignGrid.placeAtIndex(7, this.face);
+    alignGrid.showNumbers();
+    Align.scaleToGameW(this.face, 0.2);
 
-    this.road = new Road({
-      scene: this
-    });
-    this.road.x = game.config.width * 0.25;
-    console.log("road:", this.road);
-    this.road.makeLines();
+    // Button:
+    let fireText = {color:"red", fontSize: 20};
+
+    let flatButton = new FlatButton({scene: this, key: "button1", text: "Press me to fire!", x: 240, y: 100, event: "button_pressed", params: "fire_lasers", textConfig: fireText});
+    let flatButton2 = new FlatButton({scene: this, key: "button2", text: "Press me to destruct!", x: 240, y: 300, event: "button_pressed", params: "self_destruct"});
+
+    emitter.on("button_pressed", this.buttonPressed, this);
+    
+    console.log("Blir scenene laget eller????");
   }
+  
+   buttonPressed(params) {
+    console.log("WORDKKD");
+    console.log("Button pressed: ", params);
+    this.scene.start("SceneOver")
+  }
+
 
   update() {
     // Constant running loop
-    this.road.moveLines();
-    this.road.moveObject();
   }
 
   customFunctions() {
